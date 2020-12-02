@@ -6,24 +6,36 @@ import java.io.*;
 public class Server {
 
     ServerSocket serverSocket;
-    Socket server;
+    Socket client;
     private EncryptionUtils encryptionUtils;
+    PrintWriter clientWriter;
+    BufferedReader clientReader;
+    BufferedReader localReader;
+
     private int port;
     private String name;
+
+    public static void main(String[] args) throws IOException {
+        Server client = new Server(15000, "Diego");
+        client.startServer();
+        client.startChatting();
+    }
 
     public Server(int port, String name) {
         this.port = port;
         this.name = name;
     }
 
-    public EncryptionUtils StartServer() throws IOException
+    public void startServer()
     {
         try {
             // Established the Connection
             serverSocket = new ServerSocket(port);
             System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
-            server = serverSocket.accept();
-            System.out.println("Just connected to " + server.getRemoteSocketAddress());
+            client = serverSocket.accept();
+            System.out.println("Just connected to " + client.getRemoteSocketAddress());
+            clientReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            clientWriter = new PrintWriter(client.getOutputStream(), true);
 
             encryptionUtils = new EncryptionUtils();
             encryptionUtils.generateKeys();
@@ -34,26 +46,34 @@ public class Server {
         catch (Exception e) {
             System.out.println("Exception on starting.");
         }
-        finally {
-            return encryptionUtils;
-        }
     }
 
     public void setKeys(EncryptionUtils anotherConnection) {
-        encryptionUtils.receivePublicKeyFrom(anotherConnection);
+        encryptionUtils.receivePublicKeyFrom(null);
         encryptionUtils.generateCommonSecretKey();
     }
 
-    public void sendMessage(String readLine) throws IOException {
-        // Accepts the data from client
-        DataInputStream in = new DataInputStream(server.getInputStream());
-        String line = in.readUTF();
+    public void startChatting() throws IOException {
+        localReader = new BufferedReader(new InputStreamReader(System.in));
+        String line = localReader.readLine();
 
-        OutputStream outToClient = server.getOutputStream();
-        DataOutputStream out = new DataOutputStream(outToClient);
+        while (!line.equals("finish")) {
 
-        out.writeUTF("");
-        server.close();
+            // The next code lines are going to get the name and host from the user
+            System.out.println(clientReader.readLine());
+
+            // we are going to write the answer and send it to the client
+            String message = name + ": " + line;
+            clientWriter.println(message);
+
+            line = localReader.readLine();
+        }
+
+        // Close the streams and the socket associated to the request
+        localReader.close();
+        clientReader.close();
+        clientWriter.close();
+        client.close();
     }
 }
 

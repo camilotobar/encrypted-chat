@@ -14,22 +14,21 @@ public class EncryptionUtils {
     private PublicKey  publicKey;
     private PublicKey  receivedPublicKey;
     private byte[]     secretKey;
-    private String     secretMessage;
 
-    public void encryptAndSendMessage(final String message, final EncryptionUtils person) {
-
+    public byte[] encryptMessage(final String message) {
+        byte[] encryptedMessage = null;
         try {
             // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
             final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
             final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-            final byte[] encryptedMessage = cipher.doFinal(message.getBytes());
-
-            person.receiveAndDecryptMessage(encryptedMessage);
+            encryptedMessage = cipher.doFinal(message.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        finally {
+            return encryptedMessage;
         }
     }
 
@@ -39,7 +38,6 @@ public class EncryptionUtils {
             final KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
             keyAgreement.init(privateKey);
             keyAgreement.doPhase(receivedPublicKey, true);
-
             secretKey = shortenSecretKey(keyAgreement.generateSecret());
         } catch (Exception e) {
             e.printStackTrace();
@@ -51,7 +49,6 @@ public class EncryptionUtils {
         try {
             final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
             keyPairGenerator.initialize(1024);
-
             final KeyPair keyPair = keyPairGenerator.generateKeyPair();
             privateKey = keyPair.getPrivate();
             publicKey  = keyPair.getPublic();
@@ -61,42 +58,33 @@ public class EncryptionUtils {
     }
 
     public PublicKey getPublicKey() {
-
         return publicKey;
     }
 
-    public void receiveAndDecryptMessage(final byte[] message) {
+    public String decryptMessage(final byte[] message) {
 
+        String secretMessage = null;
         try {
             // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
             final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
             final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
-
             secretMessage = new String(cipher.doFinal(message));
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        finally {
+            return secretMessage;
         }
     }
 
     /**
      * In a real life example you must serialize the public key for transferring.
-     *
-     * @param  person
+     * @param  anotherConnectionPublicKey public key
      */
-    public void receivePublicKeyFrom(final EncryptionUtils person) {
-
-        receivedPublicKey = person.getPublicKey();
-    }
-
-
-
-    //~ ----------------------------------------------------------------------------------------------------------------
-
-    public void whisperTheSecretMessage() {
-
-        System.out.println(secretMessage);
+    public void receivePublicKeyFrom(PublicKey anotherConnectionPublicKey) {
+        receivedPublicKey = anotherConnectionPublicKey;
     }
 
     /**
