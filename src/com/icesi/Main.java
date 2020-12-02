@@ -13,8 +13,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         writer = new BufferedWriter(new OutputStreamWriter(System.out));
         reader = new BufferedReader(new InputStreamReader(System.in));
-        Server server;
-        Client client;
+        Server server = null;
+        Client client = null;
+        EncryptionUtils serverUtils = null;
+        EncryptionUtils clientUtils = null;
         port = 0;
 
         String line = reader.readLine();
@@ -35,18 +37,22 @@ public class Main {
 
                 if(type == "client") {
                     client = new Client(port, name);
-                    client.StartClient();
+                    clientUtils = client.StartClient();
                 }
                 else {
                     server = new Server(port, name);
-                    server.StartServer();
+                    serverUtils = server.StartServer();
                 }
+            }
+            else if(client != null && server != null) {
+                server.setKeys(clientUtils);
+                client.setKeys(serverUtils);
             }
             else {
                 if(type == "client")
-                    client = new Client();
+                    client.sendMessage(reader.readLine());
                 else
-                    server = new Server();
+                    server.sendMessage(reader.readLine());
             }
         }
 

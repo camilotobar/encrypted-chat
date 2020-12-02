@@ -13,48 +13,42 @@ public class Client {
         this.name = name;
     }
 
-    public void StartClient()
+    public EncryptionUtils StartClient()
     {
         try {
-            encryptionUtils = new EncryptionUtils();
-            encryptionUtils.generateKeys();
-
             // Established the connection
             System.out.println("Connecting to localhost on port " + port);
             Socket client = new Socket("localhost", port);
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
 
+            encryptionUtils = new EncryptionUtils();
+            encryptionUtils.generateKeys();
+
             // Sends the data to client
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
 
-            pstr = Integer.toString(p);
-            out.writeUTF(pstr); // Sending p
-
-            gstr = Integer.toString(g);
-            out.writeUTF(gstr); // Sending g
-
-            double A = ((Math.pow(g, a)) % p); // calculation of A
-            Astr = Double.toString(A);
-            out.writeUTF(Astr); // Sending A
-
-            // Client's Private Key
-            System.out.println("From Client : Private Key = " + a);
+            out.writeUTF("");
 
             // Accepts the data
-            DataInputStream in = new DataInputStream(client.getInputStream());
-
-            serverB = Double.parseDouble(in.readUTF());
-            System.out.println("From Server : Public Key = " + serverB);
-
-            Adash = ((Math.pow(serverB, a)) % p); // calculation of Adash
-
-            System.out.println("Secret Key to perform Symmetric Encryption = " + Adash);
+            DataInputStream in = new DataInputStream(client.getInputStream());;
             client.close();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+        finally {
+            return encryptionUtils;
+        }
+    }
+
+    public void setKeys(EncryptionUtils anotherConnection) {
+        encryptionUtils.receivePublicKeyFrom(anotherConnection);
+        encryptionUtils.generateCommonSecretKey();
+    }
+
+    public void sendMessage(String readLine) {
+
     }
 }
 
