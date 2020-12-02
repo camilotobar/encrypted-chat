@@ -2,43 +2,53 @@ package com.icesi;
 
 import java.net.*;
 import java.io.*;
+import java.security.PublicKey;
 
 public class Server {
 
-    ServerSocket serverSocket;
-    Socket client;
+    ServerSocket serverSocketKey;
+    Socket socketKey;
     private EncryptionUtils encryptionUtils;
-    PrintWriter clientWriter;
-    BufferedReader clientReader;
     BufferedReader localReader;
+    ObjectInputStream clientObjectInput;
+    ObjectOutputStream clientObjectOutput;
 
     private int port;
     private String name;
 
-    public static void main(String[] args) throws IOException {
-        Server client = new Server(15000, "Diego");
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        Server client = new Server(15000);
         client.startServer();
         client.startChatting();
     }
 
-    public Server(int port, String name) {
+    /**
+     * Creates a new chat server
+     * @param port port selected
+     */
+    public Server(int port) {
         this.port = port;
-        this.name = name;
     }
 
+    /**
+     *
+     */
     public void startServer()
     {
         try {
-            // Established the Connection
-            serverSocket = new ServerSocket(port);
-            System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
-            client = serverSocket.accept();
-            System.out.println("Just connected to " + client.getRemoteSocketAddress());
-            clientReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            clientWriter = new PrintWriter(client.getOutputStream(), true);
-
             encryptionUtils = new EncryptionUtils();
             encryptionUtils.generateKeys();
+            serverSocketKey = new ServerSocket(port);
+            System.out.println("Waiting for client on port " + serverSocketKey.getLocalPort() + "...");
+            socketKey = serverSocketKey.accept();
+            System.out.println("Just connected to " + socketKey.getRemoteSocketAddress());
+
+            clientObjectInput = new ObjectInputStream(socketKey.getInputStream());
+            setKeys((PublicKey) clientObjectInput.readObject());
+
+            clientObjectOutput = new ObjectOutputStream(socketKey.getOutputStream());
+            clientObjectOutput.writeObject(encryptionUtils.getPublicKey());
+
         }
         catch (SocketTimeoutException s) {
             System.out.println("Socket timed out!");
@@ -48,32 +58,43 @@ public class Server {
         }
     }
 
-    public void setKeys(EncryptionUtils anotherConnection) {
-        encryptionUtils.receivePublicKeyFrom(null);
+    /**
+     *
+     * @param serverPublicKey
+     */
+    public void setKeys(PublicKey serverPublicKey) {
+        encryptionUtils.receivePublicKeyFrom(serverPublicKey);
         encryptionUtils.generateCommonSecretKey();
     }
 
-    public void startChatting() throws IOException {
+    /**
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public void startChatting() throws IOException, ClassNotFoundException {
         localReader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Welcome back!\nPlease write your name.");
         String line = localReader.readLine();
+        name = line;
 
         while (!line.equals("finish")) {
 
             // The next code lines are going to get the name and host from the user
-            System.out.println(clientReader.readLine());
+            System.out.println(encryptionUtils.decryptMessage((byte[]) clientObjectInput.readObject()));
 
             // we are going to write the answer and send it to the client
-            String message = name + ": " + line;
-            clientWriter.println(message);
+            byte[] message = encryptionUtils.encryptMessage(name + ": " + line);
+            clientObjectOutput.writeObject(message);
 
             line = localReader.readLine();
         }
 
         // Close the streams and the socket associated to the request
         localReader.close();
-        clientReader.close();
-        clientWriter.close();
-        client.close();
+        clientObjectInput.close();
+        clientObjectOutput.close();
+        socketKey.close();
     }
 }
 
