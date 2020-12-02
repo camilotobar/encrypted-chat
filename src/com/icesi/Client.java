@@ -5,6 +5,13 @@ import java.io.*;
 public class Client {
 
     private EncryptionUtils encryptionUtils;
+    private int port;
+    private String name;
+
+    public Client(int port, String name) {
+        this.port = port;
+        this.name = name;
+    }
 
     public void StartClient()
     {
@@ -12,19 +19,9 @@ public class Client {
             encryptionUtils = new EncryptionUtils();
             encryptionUtils.generateKeys();
 
-            String pstr, gstr, Astr;
-            String serverName = "localhost";
-            int port = 8088;
-
-            // Declare p, g, and Key of client
-            int p = 23;
-            int g = 9;
-            int a = 4;
-            double Adash, serverB;
-
             // Established the connection
-            System.out.println("Connecting to " + serverName + " on port " + port);
-            Socket client = new Socket(serverName, port);
+            System.out.println("Connecting to localhost on port " + port);
+            Socket client = new Socket("localhost", port);
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
 
             // Sends the data to client
@@ -52,8 +49,7 @@ public class Client {
 
             Adash = ((Math.pow(serverB, a)) % p); // calculation of Adash
 
-            System.out.println("Secret Key to perform Symmetric Encryption = "
-                    + Adash);
+            System.out.println("Secret Key to perform Symmetric Encryption = " + Adash);
             client.close();
         }
         catch (Exception e) {

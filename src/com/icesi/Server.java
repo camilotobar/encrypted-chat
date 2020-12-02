@@ -6,6 +6,13 @@ import java.io.*;
 public class Server {
 
     private EncryptionUtils encryptionUtils;
+    private int port;
+    private String name;
+
+    public Server(int port, String name) {
+        this.port = port;
+        this.name = name;
+    }
 
     public void StartServer() throws IOException
     {
