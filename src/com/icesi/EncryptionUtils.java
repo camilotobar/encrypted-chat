@@ -3,6 +3,8 @@ package com.icesi;
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.SecretKeySpec;
+
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
@@ -15,15 +17,23 @@ public class EncryptionUtils {
     private PublicKey  receivedPublicKey;
     private byte[]     secretKey;
 
+    /**
+     * encrypts a message with the algorithm AES128
+     * @param message to be encrypted
+     * @return an array of bytes with the encrypted message
+     */
     public byte[] encryptMessage(final String message) {
         byte[] encryptedMessage = null;
         try {
             // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
-            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-            encryptedMessage = cipher.doFinal(message.getBytes());
+//            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
+//            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
+//
+//            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            Key aesKey = new SecretKeySpec(secretKey, "AES");
+            Cipher cf = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cf.init(Cipher.ENCRYPT_MODE,aesKey);
+            encryptedMessage = cf.doFinal(message.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,16 +71,25 @@ public class EncryptionUtils {
         return publicKey;
     }
 
+    /**
+     * Decrypts an encrypted message with the algorithm AES128
+     * @param message to be decrypted
+     * @return original message
+     */
     public String decryptMessage(final byte[] message) {
 
         String secretMessage = null;
         try {
             // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
-            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.DECRYPT_MODE, keySpec);
-            secretMessage = new String(cipher.doFinal(message));
+//            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
+//            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
+//
+//            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+//            secretMessage = new String(cipher.doFinal(message));
+            Key aesKey = new SecretKeySpec(secretKey, "AES");
+            Cipher cf = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cf.init(Cipher.DECRYPT_MODE,aesKey);
+            secretMessage = new String(cf.doFinal(message));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,9 +107,7 @@ public class EncryptionUtils {
     }
 
     /**
-     * 1024 bit symmetric key size is so big for DES so we must shorten the key size. You can get first 8 longKey of the
-     * byte array or can use a key factory
-     *
+     * 1024 bit symmetric key size is so big for AES so we must shorten the key size
      * @param   longKey
      *
      * @return
@@ -99,8 +116,8 @@ public class EncryptionUtils {
 
         try {
 
-            // Use 8 bytes (64 bits) for DES, 6 bytes (48 bits) for Blowfish
-            final byte[] shortenedKey = new byte[8];
+            // Use 16 bytes (128 bits) for AES, 8 bytes (64 bits) for DES, 6 bytes (48 bits) for Blowfish
+            final byte[] shortenedKey = new byte[16];
 
             System.arraycopy(longKey, 0, shortenedKey, 0, shortenedKey.length);
 
