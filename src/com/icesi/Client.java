@@ -10,6 +10,7 @@ public class Client {
     BufferedReader localReader;
     ObjectInputStream serverObjectInput;
     ObjectOutputStream serverObjectOutput;
+    private boolean stop;
 
     private int port;
     private String name;
@@ -66,28 +67,17 @@ public class Client {
      * @throws ClassNotFoundException
      */
     public void startChatting() throws IOException, ClassNotFoundException {
+    	
         localReader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Welcome back!\nPlease write your name.");
-        String line = localReader.readLine();
-        name = line;
-
-        while (!line.equals("finish")) {
-
-            // we are going to write the answer and send it to the client
-            byte[] message = encryptionUtils.encryptMessage(name + ": " + line);
-            serverObjectOutput.writeObject(message);
-
-            // The next code lines are going to get the name and host from the user
-            System.out.println(encryptionUtils.decryptMessage((byte[]) serverObjectInput.readObject()));
-
-            line = localReader.readLine();
-        }
-
-        // Close the streams and the socket associated to the request
-        localReader.close();
-        serverObjectOutput.close();
-        serverObjectInput.close();
-        socketKey.close();
+        String name = localReader.readLine();
+        System.out.println("Chat ready, type something to send a message");
+        SenderThread sender = new SenderThread(encryptionUtils, serverObjectOutput, name);
+        sender.start();
+        ListenerThread listener = new ListenerThread(encryptionUtils, serverObjectInput, stop);
+        listener.start();
+        
     }
+    
 }
 

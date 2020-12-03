@@ -9,12 +9,12 @@ public class Server {
     ServerSocket serverSocketKey;
     Socket socketKey;
     private EncryptionUtils encryptionUtils;
-    BufferedReader localReader;
     ObjectInputStream clientObjectInput;
     ObjectOutputStream clientObjectOutput;
+    private BufferedReader localReader;
+    private boolean stop;
 
     private int port;
-    private String name;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Server client = new Server(15000);
@@ -75,26 +75,17 @@ public class Server {
     public void startChatting() throws IOException, ClassNotFoundException {
         localReader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Welcome back!\nPlease write your name.");
-        String line = localReader.readLine();
-        name = line;
-
-        while (!line.equals("finish")) {
-
-            // The next code lines are going to get the name and host from the user
-            System.out.println(encryptionUtils.decryptMessage((byte[]) clientObjectInput.readObject()));
-
-            // we are going to write the answer and send it to the client
-            byte[] message = encryptionUtils.encryptMessage(name + ": " + line);
-            clientObjectOutput.writeObject(message);
-
-            line = localReader.readLine();
-        }
-
+        String name = localReader.readLine();
+        System.out.println("Chat ready, type something to send a message");
+        SenderThread sender = new SenderThread(encryptionUtils, clientObjectOutput, name);
+        sender.start();
+        ListenerThread listener = new ListenerThread(encryptionUtils, clientObjectInput, stop);
+        listener.start();
         // Close the streams and the socket associated to the request
-        localReader.close();
-        clientObjectInput.close();
-        clientObjectOutput.close();
-        socketKey.close();
+//        clientObjectInput.close();
+//        clientObjectOutput.close();
+//        socketKey.close();
     }
+    
 }
 
