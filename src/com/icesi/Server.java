@@ -6,12 +6,18 @@ import java.security.PublicKey;
 
 public class Server {
 
-    ServerSocket serverSocketKey;
-    Socket socketKey;
+    private ServerSocket serverSocketKey;
+
+    private Socket socketKey;
+
     private EncryptionUtils encryptionUtils;
-    ObjectInputStream clientObjectInput;
-    ObjectOutputStream clientObjectOutput;
+
+    private ObjectInputStream clientObjectInput;
+
+    private ObjectOutputStream clientObjectOutput;
+
     private BufferedReader localReader;
+
     private boolean stop;
 
     private int port;
@@ -31,7 +37,7 @@ public class Server {
     }
 
     /**
-     *
+     * Starts the server who will be listening for a connection with a client, and establish it when it finds one
      */
     public void startServer()
     {
@@ -59,7 +65,7 @@ public class Server {
     }
 
     /**
-     *
+     * Set the keys that are going to be used for conversation encryption 
      * @param serverPublicKey
      */
     public void setKeys(PublicKey serverPublicKey) {
@@ -68,11 +74,10 @@ public class Server {
     }
 
     /**
-     *
+     * Starts the threads in charge of handling the chat
      * @throws IOException
-     * @throws ClassNotFoundException
      */
-    public void startChatting() throws IOException, ClassNotFoundException {
+    public void startChatting() throws IOException{
         localReader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Welcome back!\nPlease write your name.");
         String name = localReader.readLine();
@@ -81,10 +86,6 @@ public class Server {
         sender.start();
         ListenerThread listener = new ListenerThread(encryptionUtils, clientObjectInput, stop);
         listener.start();
-        // Close the streams and the socket associated to the request
-//        clientObjectInput.close();
-//        clientObjectOutput.close();
-//        socketKey.close();
     }
     
 }

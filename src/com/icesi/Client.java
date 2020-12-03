@@ -30,7 +30,7 @@ public class Client {
     }
 
     /**
-     *
+     * Starts a client instance who will search for a server and establish a connection 
      */
     public void startClient() {
         try {
@@ -53,7 +53,7 @@ public class Client {
     }
 
     /**
-     *
+     * Set the keys that are going to be used for conversation encryption
      * @param serverPublicKey
      */
     public void setKeys(PublicKey serverPublicKey) {
@@ -62,11 +62,10 @@ public class Client {
     }
 
     /**
-     *
+     * Starts the threads in charge of handling the chat
      * @throws IOException
-     * @throws ClassNotFoundException
      */
-    public void startChatting() throws IOException, ClassNotFoundException {
+    public void startChatting() throws IOException{
     	
         localReader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Welcome back!\nPlease write your name.");

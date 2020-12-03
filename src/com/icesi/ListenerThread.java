@@ -16,6 +16,9 @@ public class ListenerThread extends Thread{
 		this.stop = stop;
 	}
     
+    /**
+     * Runs the async task for receiving
+     */
 	public void run() {
 
 		try {

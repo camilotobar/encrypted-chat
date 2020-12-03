@@ -18,6 +18,9 @@ public class SenderThread extends Thread{
     	this.name = name;
 	}
     
+    /**
+     * Runs the async task for sending messages
+     */
 	public void run() {
 		
 		try {
