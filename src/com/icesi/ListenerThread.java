@@ -1,10 +1,8 @@
 package com.icesi;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 
 public class ListenerThread extends Thread{
-
 
     private EncryptionUtils encryptionUtils;
     private ObjectInputStream clientObjectInput;
@@ -27,7 +25,6 @@ public class ListenerThread extends Thread{
 			}
 //			clientObjectInput.close();
 		} catch (Exception e) {
-//			e.printStackTrace();
 			System.out.println("Connection ended");
 		}
 	}

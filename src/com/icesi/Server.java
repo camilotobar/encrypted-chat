@@ -22,7 +22,7 @@ public class Server {
 
     private int port;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException {
         Server client = new Server(15000);
         client.startServer();
         client.startChatting();

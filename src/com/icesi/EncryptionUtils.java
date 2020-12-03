@@ -25,11 +25,9 @@ public class EncryptionUtils {
     public byte[] encryptMessage(final String message) {
         byte[] encryptedMessage = null;
         try {
-            // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
-//            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-//            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-//
-//            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+//          final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
+//          final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
+//          cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             Key aesKey = new SecretKeySpec(secretKey, "AES");
             Cipher cf = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cf.init(Cipher.ENCRYPT_MODE,aesKey);
@@ -42,6 +40,9 @@ public class EncryptionUtils {
         }
     }
 
+    /**
+     * Generates the common secret key between the shared public key and my private key
+     */
     public void generateCommonSecretKey() {
 
         try {
@@ -54,6 +55,9 @@ public class EncryptionUtils {
         }
     }
 
+    /**
+     * Generates the private and public key
+     */
     public void generateKeys() {
 
         try {
@@ -80,12 +84,10 @@ public class EncryptionUtils {
 
         String secretMessage = null;
         try {
-            // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
-//            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-//            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-//
-//            cipher.init(Cipher.DECRYPT_MODE, keySpec);
-//            secretMessage = new String(cipher.doFinal(message));
+//          final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
+//          final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
+//          cipher.init(Cipher.DECRYPT_MODE, keySpec);
+//          secretMessage = new String(cipher.doFinal(message));
             Key aesKey = new SecretKeySpec(secretKey, "AES");
             Cipher cf = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cf.init(Cipher.DECRYPT_MODE,aesKey);

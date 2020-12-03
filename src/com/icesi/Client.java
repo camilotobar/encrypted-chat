@@ -15,7 +15,7 @@ public class Client {
     private int port;
     private String name;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException {
         Client client = new Client(15000);
         client.startClient();
         client.startChatting();
