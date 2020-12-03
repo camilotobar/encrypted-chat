@@ -17,6 +17,6 @@ Las dificultades del proceso fueron varias pero resaltamos 2.
 
 ## Conclusiones del proyecto
 - Cuando se encripta con AES 128 es importante tener en cuenta que los bloques deben tener longitud multiplo de 16 bytes.
-
+- Es importante tener en cuenta que la longitud de las llaves para la encripcion de los algoritmos pueden tener deiferentes longitudes ya que esto depende de como funcionan cada algoritmo.
 
 Universidad Icesi - Cali.
